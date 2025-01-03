@@ -40,6 +40,10 @@ body {
 #about h2 {
     color: #007bff;
     font-size: 2rem;
+    text-align: justify;
+}
+#about p{
+    text-align: justify;
 }
 
 #projects .card {
