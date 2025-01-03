@@ -125,7 +125,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
     
         const firebaseConfig = {
             apiKey: "AIzaSyCaMP7n7WQT3Wq_rdpq8QKEy2nD7_Ntnlw",
@@ -154,21 +154,24 @@
                 console.error("Error writing document: ", error);
             }
         }
-        document.addEventListener('DOMContentLoaded', () => {
-            const visitCountKey = 'visitCount';
-            let visitCount = localStorage.getItem(visitCountKey);
-
-            if (!visitCount) {
-                visitCount = 0;
-            } else {
-                visitCount = parseInt(visitCount, 10);
+        async function updatePageVisits() {
+            const visitRef = doc(db, "pageVisits", "homepage");
+            try {
+                const visitDoc = await getDoc(visitRef);
+                let visitCount = 0;
+                if (visitDoc.exists()) {
+                    visitCount = visitDoc.data().count || 0;
+                }
+                visitCount += 1;
+                await setDoc(visitRef, { count: visitCount });
+                document.getElementById('visit-count').textContent = `Page Visits: ${visitCount}`;
+            } catch (error) {
+                console.error("Error updating visit count:", error);
             }
-
-            visitCount++;
-            localStorage.setItem(visitCountKey, visitCount);
-
-            document.getElementById('visit-count').textContent = visitCount;
-        })
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+        updatePageVisits();
+    })
 
         document.getElementById('userForm').addEventListener('submit', async function(event) {
             event.preventDefault();
